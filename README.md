@@ -68,7 +68,7 @@ Run
 OpenCanary is started by running:
 
 ```
-$ sudo /path/to/venv/bin/opencanary --start
+$ sudo /path/to/venv/bin/opencanaryd --start
 ```
 
 On the first run, instructions are printed that will get to a working config.
