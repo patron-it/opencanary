@@ -155,7 +155,7 @@ class HoneyPotRealm:
             return interfaces[0], \
                 HoneyPotAvatar(avatarId, self.env), lambda: None
         else:
-            raise Exception, "No supported interfaces found."
+            raise Exception("No supported interfaces found.")
 
 class HoneyPotTransport(transport.SSHServerTransport):
 
