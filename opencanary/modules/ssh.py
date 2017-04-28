@@ -91,7 +91,7 @@ class HoneyPotSSHUserAuthServer(userauth.SSHUserAuthServer):
                             keytype=keytype,
                             keydata=base64.b64encode(key_blob))
 
-            print 'Key was {key}'.format(key=key)
+            print('Key was {key}'.format(key=key))
 
         c = credentials.SSHPrivateKey(None,None,None,None,None)
 
