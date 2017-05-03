@@ -19,7 +19,7 @@ setup(
         'wsgiref==0.1.2',
         'zope.interface==4.1.1',
         'PyPDF2==1.23',
-        'fpdf==1.7',
+        'fpdf==1.7.2',
         'passlib==1.6.2',
         'Jinja2>=2.4',
         'ntlmlib==0.67'
@@ -33,4 +33,3 @@ setup(
     platforms='any',
     include_package_data=True
 )
-
