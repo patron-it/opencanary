@@ -8,7 +8,7 @@ from twisted.conch.ssh import factory, userauth, connection, keys, session, tran
 from twisted.internet import reactor, protocol, defer
 from twisted. application import internet
 
-from zope.interface import implements
+from zope.interface import implementer
 import sys, os, time
 import base64
 
@@ -144,8 +144,9 @@ class HoneyPotSSHFactory(factory.SSHFactory):
         t.factory = self
         return t
 
+
+@implementer(portal.IRealm)
 class HoneyPotRealm:
-    implements(portal.IRealm)
 
     def __init__(self):
         pass
@@ -238,8 +239,8 @@ class HoneyPotSSHSession(session.SSHSession):
         #print 'request_env: %s' % (repr(data))
         pass
 
+@implementer(conchinterfaces.ISession)
 class HoneyPotAvatar(avatar.ConchUser):
-    implements(conchinterfaces.ISession)
 
     def __init__(self, username, env):
         avatar.ConchUser.__init__(self)
@@ -339,8 +340,9 @@ def getDSAKeys():
             privateKeyString = f.read()
     return publicKeyString, privateKeyString
 
+
+@implementer(checkers.ICredentialsChecker)
 class HoneypotPasswordChecker:
-    implements(checkers.ICredentialsChecker)
 
     credentialInterfaces = (credentials.IUsernamePassword,)
 
@@ -352,8 +354,9 @@ class HoneypotPasswordChecker:
     def requestAvatarId(self, credentials):
         return defer.fail(error.UnauthorizedLogin())
 
+
+@implementer(checkers.ICredentialsChecker)
 class CanaryPublicKeyChecker:
-    implements(checkers.ICredentialsChecker)
 
     credentialInterfaces = (credentials.ISSHPrivateKey,)
 
