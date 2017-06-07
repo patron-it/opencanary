@@ -23,6 +23,7 @@ import socket
 # Simply run `pip install -r opencanary/test/requirements.txt`
 import requests
 import paramiko
+import pymysql
 
 
 def get_last_log():
@@ -192,6 +193,30 @@ class TestNTPModule(unittest.TestCase):
 
     def tearDown(self):
         self.sock.close()
+
+
+class TestMySQLModule(unittest.TestCase):
+    """
+    Tests the MySQL Server attempting to login should fail and
+    """
+
+    def test_mysql_server_login(self):
+        """
+        Login to the mysql server
+        """
+        self.assertRaises(pymysql.err.OperationalError,
+                          pymysql.connect,
+                          host="localhost",
+                          user="test_user",
+                          password="test_pass",
+                          db='db',
+                          charset='utf8mb4',
+                          cursorclass=pymysql.cursors.DictCursor)
+        last_log = get_last_log()
+        self.assertEqual(last_log['logdata']['USERNAME'], "test_user")
+        self.assertEqual(last_log['logdata']['PASSWORD'],
+                         "b2e5ed6a0e59f99327399ced2009338d5c0fe237")
+        self.assertEqual(last_log['dst_port'], 3306)
 
 
 if __name__ == '__main__':
