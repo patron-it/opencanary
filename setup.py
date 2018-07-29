@@ -5,15 +5,15 @@ import os
 import opencanary
 
 requirements = [
-    'Twisted==17.1.0',
-    'pyasn1==0.2.3',
+    'Twisted==18.7.0',
+    'pyasn1==0.4.4',
     'pycrypto==2.6.1',
-    'simplejson==3.10.0',
-    'zope.interface==4.4.1',
+    'simplejson==3.16.0',
+    'zope.interface==4.5.0',
     'PyPDF2==1.26.0',
     'fpdf==1.7.2',
     'passlib==1.7.1',
-    'Jinja2==2.9.6',
+    'Jinja2==2.10.0',
     'ntlmlib==0.72']
 
 # Python 2 requires wsgiref but with python 3 wsgiref is a standard library.
