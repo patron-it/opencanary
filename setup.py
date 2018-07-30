@@ -7,7 +7,7 @@ import opencanary
 requirements = [
     'Twisted==18.7.0',
     'pyasn1==0.4.4',
-    'pycrypto==2.6.1',
+    'cryptography==2.3.0',
     'simplejson==3.16.0',
     'zope.interface==4.5.0',
     'PyPDF2==1.26.0',
