@@ -113,9 +113,10 @@ class HoneyPotSSHUserAuthServer(userauth.SSHUserAuthServer):
 # As implemented by Kojoney
 class HoneyPotSSHFactory(factory.SSHFactory):
     services = {
-        'ssh-userauth': HoneyPotSSHUserAuthServer,
-        'ssh-connection': connection.SSHConnection,
-        }
+        b'ssh-userauth': HoneyPotSSHUserAuthServer,
+        b'ssh-connection': connection.SSHConnection,
+    }
+
 
     # Special delivery to the loggers to avoid scope problems
     def logDispatch(self, sessionid, msg):
@@ -323,7 +324,7 @@ def getRSAKeys():
             serialization.PublicFormat.OpenSSH)
         private_key_string = ssh_key.private_bytes(
             serialization.Encoding.PEM,
-            serialization.PrivateFormat.PKCS8,
+            serialization.PrivateFormat.TraditionalOpenSSL,
             serialization.NoEncryption())
         with open(public_key, 'w+b') as key_file:
             key_file.write(public_key_string)
@@ -355,7 +356,7 @@ def getDSAKeys():
             serialization.PublicFormat.OpenSSH)
         private_key_string = ssh_key.private_bytes(
             serialization.Encoding.PEM,
-            serialization.PrivateFormat.PKCS8,
+            serialization.PrivateFormat.TraditionalOpenSSL,
             serialization.NoEncryption())
         with open(public_key, 'w+b') as key_file:
             key_file.write(public_key_string)
@@ -414,8 +415,8 @@ class CanarySSH(CanaryService):
         dsa_pubKeyString, dsa_privKeyString = getDSAKeys()
         factory.portal.registerChecker(HoneypotPasswordChecker(logger=factory.logger))
         factory.portal.registerChecker(CanaryPublicKeyChecker(logger=factory.logger))
-        factory.publicKeys = {'ssh-rsa': rsa_pubKeyString,
-                              'ssh-dss': dsa_pubKeyString}
-        factory.privateKeys = {'ssh-rsa': rsa_privKeyString,
-                               'ssh-dss': dsa_privKeyString}
+        factory.publicKeys = {b'ssh-rsa': keys.Key.fromString(rsa_pubKeyString),
+                              b'ssh-dss': keys.Key.fromString(dsa_pubKeyString)}
+        factory.privateKeys = {b'ssh-rsa': keys.Key.fromString(rsa_privKeyString),
+                               b'ssh-dss': keys.Key.fromString(dsa_privKeyString)}
         return internet.TCPServer(self.port, factory, interface=self.listen_addr)
