@@ -41,7 +41,7 @@ PROFILES = {
         ],
         "status_reason": "Proxy Authentication Required ( The ISA Server requires authorization to fulfill the request. Access to the Web Proxy service is denied.  )"
     },
-    "squid" : {
+       "squid" : {
         # p/Squid http proxy/ v/$1/ cpe:/a:squid-cache:squid:$1/
         "banner": 'Squid proxy-caching web server',
         "headers": [
