@@ -16,9 +16,13 @@ requirements = [
     'Jinja2==2.10.0',
     'ntlmlib==0.72']
 
-# Python 2 requires wsgiref but with python 3 wsgiref is a standard library.
-if sys.version_info[0] < 3:
-    requirements.append('wsgiref==0.1.2')
+
+extras = {
+    ':python_version < "3"': [
+        'wsgiref==0.1.2',
+    ],
+}
+
 
 setup(
     name='opencanary',
@@ -29,6 +33,7 @@ setup(
     description='OpenCanary daemon',
     long_description='A low interaction honeypot intended to be run on internal networks.',
     install_requires=requirements,
+    extras_require=extras,
     setup_requires=[
         'setuptools_git'
     ],
