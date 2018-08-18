@@ -1,6 +1,6 @@
 from opencanary.modules import CanaryService
 
-from zope.interface import implements
+from zope.interface import implementer
 from twisted.conch.telnet import TelnetTransport, AuthenticatingTelnetProtocol
 from twisted.application import internet
 from twisted.internet.protocol import ServerFactory
@@ -14,8 +14,10 @@ from twisted.conch.telnet import ITelnetProtocol
 from twisted.conch.telnet import TelnetTransport
 from twisted.conch.telnet import ECHO
 
+
+
+@implementer(portal.IRealm)
 class Realm:
-    implements(portal.IRealm)
     
     def requestAvatar(self, avatarId, mind, *interfaces):
         if ITelnetProtocol in interfaces:
@@ -28,9 +30,9 @@ class AlertAuthTelnetProtocol(AuthenticatingTelnetProtocol):
     def connectionMade(self):
         # p/Cisco telnetd/ d/router/ o/IOS/ cpe:/a:cisco:telnet/ cpe:/o:cisco:ios/a
         # NB _write() is for raw data and write() handles telnet special bytes
-        self.transport._write("\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\0\xff\xfd\x1f\r\n")
+        self.transport._write(b"\xff\xfb\x01\xff\xfb\x03\xff\xfb\0\xff\xfd\0\xff\xfd\x1f\r\n")
         self.transport.write(self.factory.banner)
-        self.transport._write("User Access Verification\r\n\r\nUsername: ")
+        self.transport._write(b"User Access Verification\r\n\r\nUsername: ")
 
     def telnet_Password(self, line):
         # Body of this method copied from

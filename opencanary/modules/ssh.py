@@ -8,9 +8,15 @@ from twisted.conch.ssh import factory, userauth, connection, keys, session, tran
 from twisted.internet import reactor, protocol, defer
 from twisted. application import internet
 
-from zope.interface import implements
+from zope.interface import implementer
 import sys, os, time
 import base64
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import dsa, rsa
+
+
 
 SSH_PATH="/var/tmp"
 
@@ -91,7 +97,7 @@ class HoneyPotSSHUserAuthServer(userauth.SSHUserAuthServer):
                             keytype=keytype,
                             keydata=base64.b64encode(key_blob))
 
-            print 'Key was {key}'.format(key=key)
+            print('Key was {key}'.format(key=key))
 
         c = credentials.SSHPrivateKey(None,None,None,None,None)
 
@@ -107,9 +113,10 @@ class HoneyPotSSHUserAuthServer(userauth.SSHUserAuthServer):
 # As implemented by Kojoney
 class HoneyPotSSHFactory(factory.SSHFactory):
     services = {
-        'ssh-userauth': HoneyPotSSHUserAuthServer,
-        'ssh-connection': connection.SSHConnection,
-        }
+        b'ssh-userauth': HoneyPotSSHUserAuthServer,
+        b'ssh-connection': connection.SSHConnection,
+    }
+
 
     # Special delivery to the loggers to avoid scope problems
     def logDispatch(self, sessionid, msg):
@@ -138,14 +145,16 @@ class HoneyPotSSHFactory(factory.SSHFactory):
 
         if not self.primes:
             ske = t.supportedKeyExchanges[:]
-            ske.remove('diffie-hellman-group-exchange-sha1')
+            if 'diffie-hellman-group-exchange-sha1' in ske:
+                ske.remove('diffie-hellman-group-exchange-sha1')
             t.supportedKeyExchanges = ske
 
         t.factory = self
         return t
 
+
+@implementer(portal.IRealm)
 class HoneyPotRealm:
-    implements(portal.IRealm)
 
     def __init__(self):
         pass
@@ -155,7 +164,7 @@ class HoneyPotRealm:
             return interfaces[0], \
                 HoneyPotAvatar(avatarId, self.env), lambda: None
         else:
-            raise Exception, "No supported interfaces found."
+            raise Exception("No supported interfaces found.")
 
 class HoneyPotTransport(transport.SSHServerTransport):
 
@@ -181,7 +190,7 @@ class HoneyPotTransport(transport.SSHServerTransport):
     def dataReceived(self, data):
         transport.SSHServerTransport.dataReceived(self, data)
         # later versions seem to call sendKexInit again on their own
-        isLibssh = data.find('libssh', data.find('SSH-')) != -1
+        isLibssh = data.find(b'libssh', data.find(b'SSH-')) != -1
 
         if (twisted.version.major < 11 or isLibssh) and \
                 not self.hadVersion and self.gotVersion:
@@ -224,7 +233,7 @@ class HoneyPotTransport(transport.SSHServerTransport):
         @param desc: a descrption of the reason for the disconnection.
         @type desc: C{str}
         """
-        if not 'bad packet length' in desc:
+        if not 'bad packet length' in desc.decode():
             # With python >= 3 we can use super?
             transport.SSHServerTransport.sendDisconnect(self, reason, desc)
         else:
@@ -238,8 +247,8 @@ class HoneyPotSSHSession(session.SSHSession):
         #print 'request_env: %s' % (repr(data))
         pass
 
+@implementer(conchinterfaces.ISession)
 class HoneyPotAvatar(avatar.ConchUser):
-    implements(conchinterfaces.ISession)
 
     def __init__(self, username, env):
         avatar.ConchUser.__init__(self)
@@ -295,52 +304,75 @@ class HoneyPotAvatar(avatar.ConchUser):
     def windowChanged(self, windowSize):
         self.windowSize = windowSize
 
+
 def getRSAKeys():
+    """
+    Checks for existing RSA Keys, if there are none, generates a 2048 bit
+    RSA key pair, saves them to a temporary location and returns the keys
+    formatted as OpenSSH keys.
+    """
     public_key = os.path.join(SSH_PATH, 'id_rsa.pub')
     private_key = os.path.join(SSH_PATH, 'id_rsa')
 
     if not (os.path.exists(public_key) and os.path.exists(private_key)):
-        from Crypto.PublicKey import RSA
-        from twisted.python import randbytes
-        KEY_LENGTH = 2048
-        rsaKey = RSA.generate(KEY_LENGTH, randbytes.secureRandom)
-        publicKeyString = keys.Key(rsaKey).public().toString('openssh')
-        privateKeyString = keys.Key(rsaKey).toString('openssh')
-        with file(public_key, 'w+b') as f:
-            f.write(publicKeyString)
-        with file(private_key, 'w+b') as f:
-            f.write(privateKeyString)
+        ssh_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+            backend=default_backend())
+        public_key_string = ssh_key.public_key().public_bytes(
+            serialization.Encoding.OpenSSH,
+            serialization.PublicFormat.OpenSSH)
+        private_key_string = ssh_key.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.TraditionalOpenSSL,
+            serialization.NoEncryption())
+        with open(public_key, 'w+b') as key_file:
+            key_file.write(public_key_string)
+        with open(private_key, 'w+b') as key_file:
+            key_file.write(private_key_string)
     else:
-        with file(public_key) as f:
-            publicKeyString = f.read()
-        with file(private_key) as f:
-            privateKeyString = f.read()
-    return publicKeyString, privateKeyString
+        with open(public_key) as key_file:
+            public_key_string = key_file.read()
+        with open(private_key) as key_file:
+            private_key_string = key_file.read()
+
+    return public_key_string, private_key_string
 
 def getDSAKeys():
+    """
+    Checks for existing DSA Keys, if there are none, generates a 2048 bit
+    DSA key pair, saves them to a temporary location and returns the keys
+    formatted as OpenSSH keys.
+    """
     public_key = os.path.join(SSH_PATH, 'id_dsa.pub')
     private_key = os.path.join(SSH_PATH, 'id_dsa')
 
     if not (os.path.exists(public_key) and os.path.exists(private_key)):
-        from Crypto.PublicKey import DSA
-        from twisted.python import randbytes
-        KEY_LENGTH = 1024
-        dsaKey = DSA.generate(KEY_LENGTH, randbytes.secureRandom)
-        publicKeyString = keys.Key(dsaKey).public().toString('openssh')
-        privateKeyString = keys.Key(dsaKey).toString('openssh')
-        with file(public_key, 'w+b') as f:
-            f.write(publicKeyString)
-        with file(private_key, 'w+b') as f:
-            f.write(privateKeyString)
+        ssh_key = dsa.generate_private_key(
+            key_size=2048,
+            backend=default_backend())
+        public_key_string = ssh_key.public_key().public_bytes(
+            serialization.Encoding.OpenSSH,
+            serialization.PublicFormat.OpenSSH)
+        private_key_string = ssh_key.private_bytes(
+            serialization.Encoding.PEM,
+            serialization.PrivateFormat.TraditionalOpenSSL,
+            serialization.NoEncryption())
+        with open(public_key, 'w+b') as key_file:
+            key_file.write(public_key_string)
+        with open(private_key, 'w+b') as key_file:
+            key_file.write(private_key_string)
     else:
-        with file(public_key) as f:
-            publicKeyString = f.read()
-        with file(private_key) as f:
-            privateKeyString = f.read()
-    return publicKeyString, privateKeyString
+        with open(public_key) as key_file:
+            public_key_string = key_file.read()
+        with open(private_key) as key_file:
+            private_key_string = key_file.read()
 
+    return public_key_string, private_key_string
+
+
+@implementer(checkers.ICredentialsChecker)
 class HoneypotPasswordChecker:
-    implements(checkers.ICredentialsChecker)
 
     credentialInterfaces = (credentials.IUsernamePassword,)
 
@@ -352,8 +384,9 @@ class HoneypotPasswordChecker:
     def requestAvatarId(self, credentials):
         return defer.fail(error.UnauthorizedLogin())
 
+
+@implementer(checkers.ICredentialsChecker)
 class CanaryPublicKeyChecker:
-    implements(checkers.ICredentialsChecker)
 
     credentialInterfaces = (credentials.ISSHPrivateKey,)
 
@@ -382,8 +415,8 @@ class CanarySSH(CanaryService):
         dsa_pubKeyString, dsa_privKeyString = getDSAKeys()
         factory.portal.registerChecker(HoneypotPasswordChecker(logger=factory.logger))
         factory.portal.registerChecker(CanaryPublicKeyChecker(logger=factory.logger))
-        factory.publicKeys = {'ssh-rsa': keys.Key.fromString(data=rsa_pubKeyString),
-                              'ssh-dss': keys.Key.fromString(data=dsa_pubKeyString)}
-        factory.privateKeys = {'ssh-rsa': keys.Key.fromString(data=rsa_privKeyString),
-                               'ssh-dss': keys.Key.fromString(data=dsa_privKeyString)}
+        factory.publicKeys = {b'ssh-rsa': keys.Key.fromString(rsa_pubKeyString),
+                              b'ssh-dss': keys.Key.fromString(dsa_pubKeyString)}
+        factory.privateKeys = {b'ssh-rsa': keys.Key.fromString(rsa_privKeyString),
+                               b'ssh-dss': keys.Key.fromString(dsa_privKeyString)}
         return internet.TCPServer(self.port, factory, interface=self.listen_addr)
