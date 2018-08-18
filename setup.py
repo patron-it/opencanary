@@ -18,6 +18,13 @@ requirements = [
 
 
 extras = {
+    'rdp': [
+        'rdpy',
+    ],
+    'snmp': [
+        'scapy',
+        'pcapy',  # undeclared dependency of scapy
+    ],
     ':python_version < "3"': [
         'wsgiref==0.1.2',
     ],
