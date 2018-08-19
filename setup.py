@@ -14,7 +14,9 @@ requirements = [
     'fpdf==1.7.2',
     'passlib==1.7.1',
     'Jinja2==2.10.0',
-    'ntlmlib==0.72']
+    'ntlmlib==0.72',
+    'python-dateutil',
+]
 
 
 extras = {
