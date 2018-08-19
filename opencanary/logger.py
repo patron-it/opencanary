@@ -273,7 +273,7 @@ class DShieldHandler(logging.Handler):
 
         if req.status_code == requests.codes.ok:
             response = req.text
-            sha1_regex = re.compile(ur'<sha1checksum>([^<]+)<\/sha1checksum>')
+            sha1_regex = re.compile(r'<sha1checksum>([^<]+)<\/sha1checksum>')
             sha1_match = sha1_regex.search(response)
             if sha1_match is None:
                 print 'Could not find sha1checksum in response'
@@ -284,7 +284,7 @@ class DShieldHandler(logging.Handler):
             if sha1_match.group(1) != sha1_local.hexdigest():
                 print '\nERROR: SHA1 Mismatch {0} {1} .\n'.format(sha1_match.group(1), sha1_local.hexdigest())
                 return(1,'\nERROR: SHA1 Mismatch {0} {1} .\n'.format(sha1_match.group(1), sha1_local.hexdigest()))
-            md5_regex = re.compile(ur'<md5checksum>([^<]+)<\/md5checksum>')
+            md5_regex = re.compile(r'<md5checksum>([^<]+)<\/md5checksum>')
             md5_match = md5_regex.search(response)
             if md5_match is None:
                 print 'Could not find md5checksum in response'
