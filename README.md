@@ -10,9 +10,7 @@ OpenCanary is a daemon that runs several canary versions of services that alerts
 Prerequisites
 ----------------
 
-* Python 2.7
-* [Optional] SNMP requires the python library scapy
-* [Optional] RDP requires the python library rdpy
+* Python 2.7+
 * [Optional] Samba module needs a working installation of samba
 
 Install
@@ -24,15 +22,13 @@ Installation on Ubuntu:
 $ sudo apt-get install python-dev python-pip python-virtualenv
 $ virtualenv env/
 $ . env/bin/activate
-$ pip install opencanary
-$ pip install scapy pcapy # optional
+$ pip install opencanary[rdp,snmp]  # rdp and snmp are optional extras
 ```
 
 Ubuntu users installing rdpy should run the following before installing OpenCanary:
 
 ```
 $ sudo apt-get install -y build-essential libssl-dev libffi-dev python-dev
-$ pip install rdpy
 ```
 
 Installation OS X needs an extra step, as multiple OpenSSL versions
@@ -57,8 +53,7 @@ $ env ARCHFLAGS="-arch x86_64" LDFLAGS="-L/usr/local/opt/openssl/lib" CFLAGS="-I
 
 Now installation can run as usual:
 ```
-$ pip install opencanary
-$ pip install scapy pcapy # optional
+$ pip install opencanary[rdp,snmp]
 ```
 
 To install from source, instead of running pip do the following:
@@ -66,9 +61,7 @@ To install from source, instead of running pip do the following:
 ```
 $ git clone https://github.com/thinkst/opencanary
 $ cd opencanary
-$ python setup.py sdist
-$ cd dist
-$ pip install opencanary-<version>.tar.gz
+$ pip install .
 ```
 
 If you are looking to get OpenCanary working on OpenBSD, take a look at https://github.com/8com/opencanary. 
