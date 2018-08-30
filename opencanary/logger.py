@@ -5,7 +5,6 @@ import logging.config
 import socket
 import sys
 import base64
-import requests
 import time
 import dateutil.parser
 import re
@@ -13,6 +12,12 @@ import re
 from datetime import datetime
 from logging.handlers import SocketHandler
 from twisted.internet import reactor
+
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
 
 class Singleton(type):
     _instances = {}
@@ -218,6 +223,12 @@ class HpfeedsHandler(logging.Handler):
 
 class DShieldHandler(logging.Handler):
     def __init__(self, dshield_userid, dshield_authkey, allowed_ports):
+        if not HAS_REQUESTS:
+            raise RuntimeError(
+                'Install requests package '
+                'in order to use SHield logging handler'
+            )
+
         logging.Handler.__init__(self)
         self.dshield_userid = str(dshield_userid)
         self.dshield_authkey = str(dshield_authkey)

@@ -27,6 +27,9 @@ extras = {
         'scapy',
         'pcapy',  # undeclared dependency of scapy
     ],
+    'DShield': [
+        'requests'
+    ],
     ':python_version < "3"': [
         'wsgiref==0.1.2',
     ],
