@@ -16,6 +16,7 @@ requirements = [
     'Jinja2==2.10.0',
     'ntlmlib==0.72',
     'python-dateutil',
+    'click==6.7',
 ]
 
 
