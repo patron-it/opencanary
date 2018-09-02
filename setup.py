@@ -53,6 +53,11 @@ setup(
     license='BSD',
     packages=find_packages(exclude='test'),
     scripts=['bin/opencanaryd', 'bin/opencanary.tac'],
+    entry_points={
+        'console_scripts': [
+            'opencanaryd-ng = opencanary.cli:main',
+        ],
+    },
     platforms='any',
     include_package_data=True
 )
