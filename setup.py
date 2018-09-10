@@ -17,6 +17,7 @@ requirements = [
     'ntlmlib==0.72',
     'python-dateutil',
     'click==6.7',
+    'six',
 ]
 
 

@@ -13,6 +13,8 @@ from datetime import datetime
 from logging.handlers import SocketHandler
 from twisted.internet import reactor
 
+import six
+
 try:
     import requests
     HAS_REQUESTS = True
@@ -29,7 +31,7 @@ class Singleton(type):
 def getLogger(config):
     try:
         d = config.getVal('logger')
-    except Exception as e:
+    except KeyError as e:
         print("Error: config does not have 'logger' section", file=sys.stderr)
         exit(1)
 

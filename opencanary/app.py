@@ -134,3 +134,10 @@ for klass in start_modules:
     start_mod(application, klass)
 
 logMsg("Canary running!!!")
+
+
+def run_twisted_app(app):
+    from twisted.application.app import startApplication
+    from twisted.internet import reactor
+    startApplication(app, 0)
+    reactor.run()

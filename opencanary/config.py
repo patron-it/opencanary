@@ -2,17 +2,20 @@ import os, sys, json, copy, socket, itertools, string, subprocess
 from os.path import expanduser
 from pkg_resources import resource_filename
 
+import six
+
+
 SAMPLE_SETTINGS = resource_filename(__name__, 'data/settings.json')
 SETTINGS = 'opencanary.conf'
 
-def byteify(input):
+def unicodify(input):
     if isinstance(input, dict):
-        return {byteify(key): byteify(value)
-                for key, value in input.iteritems()}
+        return {unicodify(key): unicodify(value)
+                for key, value in six.iteritems(input)}
     elif isinstance(input, list):
-        return [byteify(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
+        return [unicodify(element) for element in input]
+    elif isinstance(input, six.binary_type):
+        return input.decode('utf-8')
     else:
         return input
 
@@ -28,7 +31,7 @@ class Config:
                 with open(fname, "r") as f:
                     print("[-] Using config file: %s" % fname)
                     self.__config = json.load(f)
-                    self.__config = byteify(self.__config)
+                    self.__config = unicodify(self.__config)
                 return
             except IOError as e:
                 print("[-] Failed to open %s for reading (%s)" % (fname, e))
