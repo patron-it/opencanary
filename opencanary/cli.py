@@ -6,7 +6,10 @@ import textwrap
 import click
 
 ENV_VAR_PREFIX = 'OPENCANARY_'
-USER_CONFIG_PATH = os.path.join(os.path.expanduser("~"), ".opencanary.conf")
+config_name = 'opencanary.conf'
+USER_CONFIG_PATH = os.path.join(os.path.expanduser("~"), "." + config_name)
+PWD_CONFIG_PATH = config_name
+SYS_CONFIG_PATH = os.path.join('/etc/opencanaryd', config_name)
 
 
 run_dev_app = start_app = stop_app = run_user_module = (
@@ -16,6 +19,23 @@ run_dev_app = start_app = stop_app = run_user_module = (
 
 def config_exists(conf_path):
     return os.path.exists(conf_path)
+
+
+def start_app(ctx):
+    if not any(map(config_exists, (
+        USER_CONFIG_PATH,
+        PWD_CONFIG_PATH,
+        SYS_CONFIG_PATH,
+    ))):
+        click.echo(
+            '[e] No config file found, please create one with "{} --copyconfig"'.
+            format(ctx.command_path)
+        )
+        ctx.exit(1)
+
+    # FIXME: Add app starting logic here
+    # TODO: Take into account PID files
+    # NOTE: Consider using https://pypi.org/p/daemonocle
 
 
 def copy_config(ctx):
