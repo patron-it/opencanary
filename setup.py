@@ -53,7 +53,6 @@ setup(
     ],
     license='BSD',
     packages=find_packages(exclude='test'),
-    scripts=['bin/opencanaryd'],
     entry_points={
         'console_scripts': [
             'opencanaryd-ng = opencanary.cli:main',
