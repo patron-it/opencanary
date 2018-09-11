@@ -17,11 +17,11 @@ run_dev_app = start_app = stop_app = run_user_module = (
 )
 
 
-def config_exists(conf_path):
+def config_file_exists(conf_path):
     return os.path.exists(conf_path)
 
 
-def start_app(ctx):
+def config_present_or_die(ctx):
     if not any(map(config_exists, (
         USER_CONFIG_PATH,
         PWD_CONFIG_PATH,
@@ -32,6 +32,10 @@ def start_app(ctx):
             format(ctx.command_path)
         )
         ctx.exit(1)
+
+
+def start_app(ctx):
+    config_present_or_die(ctx)
 
     # FIXME: Add app starting logic here
     # TODO: Take into account PID files
@@ -44,7 +48,7 @@ def start_app(ctx):
 
 
 def copy_config(ctx):
-    if config_exists(USER_CONFIG_PATH):
+    if config_file_exists(USER_CONFIG_PATH):
         click.echo(
             "[e] A config file already exists at {}, please move it first".
             format(USER_CONFIG_PATH)
