@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 __metaclass__ = type
 
 from pkg_resources import iter_entry_points
+import platform
 import traceback
 
 from twisted.application import service
@@ -33,7 +34,7 @@ MODULES = [Telnet, CanaryHTTP, CanaryFTP, CanarySSH, HTTPProxy, CanaryMySQL,
            #CanaryExample0, CanaryExample1]
 try:
     #Module needs RDP, but the rest of OpenCanary doesn't
-    from opencanary.modules.rdp import CanaryRDP
+    from .modules.rdp import CanaryRDP
     MODULES.append(CanaryRDP)
 except ImportError:
     pass
@@ -41,16 +42,15 @@ except ImportError:
 
 try:
     #Module need Scapy, but the rest of OpenCanary doesn't
-    from opencanary.modules.snmp import CanarySNMP
+    from .modules.snmp import CanarySNMP
     MODULES.append(CanarySNMP)
 except ImportError:
     pass
 
 # NB: imports below depend on inotify, only available on linux
-import sys
-if sys.platform.startswith("linux"):
-    from opencanary.modules.samba import CanarySamba
-    from opencanary.modules.portscan import CanaryPortscan
+if platform.system() == 'Linux':
+    from .modules.samba import CanarySamba
+    from .modules.portscan import CanaryPortscan
     MODULES.append(CanarySamba)
     MODULES.append(CanaryPortscan)
 
