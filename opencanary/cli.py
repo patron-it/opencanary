@@ -12,7 +12,7 @@ PWD_CONFIG_PATH = config_name
 SYS_CONFIG_PATH = os.path.join('/etc/opencanaryd', config_name)
 
 
-run_dev_app = run_user_module = (
+run_user_module = (
     lambda ctx: print({'ctx': ctx})
 )
 
@@ -51,6 +51,14 @@ def stop_app(ctx):
     ctx.fail('I am supposed to kill the daemon, but do not yet know how.')
     #pid=`sudo cat "${PIDFILE}"`
     #sudo kill "$pid"
+
+
+def run_dev_app(ctx):
+    config_present_or_die(ctx)
+
+    from .app import run_twisted_app
+    run_twisted_app()
+    #sudo "${DIR}/twistd" -noy "${DIR}/opencanary.tac"
 
 
 def copy_config(ctx):
