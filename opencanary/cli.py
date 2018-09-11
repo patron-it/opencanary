@@ -37,8 +37,8 @@ def start_app(ctx):
     # TODO: Take into account PID files
     # NOTE: Consider using https://pypi.org/p/daemonocle
 
-    from .app import application, run_twisted_app
-    run_twisted_app(application)
+    from .app import run_twisted_app
+    run_twisted_app()
     # Do not log to syslog to avoid flood
     #sudo "${DIR}/twistd" -y "${DIR}/opencanary.tac" --pidfile "${PIDFILE}" --prefix=opencanaryd
 

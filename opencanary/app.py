@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 __metaclass__ = type
 
+import itertools
 from pkg_resources import iter_entry_points
 import platform
 import traceback
@@ -28,33 +29,41 @@ from .modules.sip import CanarySIP
 #from .modules.example0 import CanaryExample0
 #from .modules.example1 import CanaryExample1
 
+
 ENTRYPOINT = "canary.usermodule"
-MODULES = [Telnet, CanaryHTTP, CanaryFTP, CanarySSH, HTTPProxy, CanaryMySQL,
-           MSSQL, CanaryVNC, CanaryTftp, CanaryNtp, CanarySIP]
-           #CanaryExample0, CanaryExample1]
-try:
-    #Module needs RDP, but the rest of OpenCanary doesn't
-    from .modules.rdp import CanaryRDP
-    MODULES.append(CanaryRDP)
-except ImportError:
-    pass
 
 
-try:
-    #Module need Scapy, but the rest of OpenCanary doesn't
-    from .modules.snmp import CanarySNMP
-    MODULES.append(CanarySNMP)
-except ImportError:
-    pass
+def get_stdlib_modules():
+    modules = [Telnet, CanaryHTTP, CanaryFTP, CanarySSH, HTTPProxy, CanaryMySQL,
+               MSSQL, CanaryVNC, CanaryTftp, CanaryNtp, CanarySIP]
+               #CanaryExample0, CanaryExample1]
+    try:
+        #Module needs RDP, but the rest of OpenCanary doesn't
+        from .modules.rdp import CanaryRDP
+        modules.append(CanaryRDP)
+    except ImportError:
+        pass
 
-# NB: imports below depend on inotify, only available on linux
-if platform.system() == 'Linux':
-    from .modules.samba import CanarySamba
-    from .modules.portscan import CanaryPortscan
-    MODULES.append(CanarySamba)
-    MODULES.append(CanaryPortscan)
+
+    try:
+        #Module need Scapy, but the rest of OpenCanary doesn't
+        from .modules.snmp import CanarySNMP
+        modules.append(CanarySNMP)
+    except ImportError:
+        pass
+
+    # NB: imports below depend on inotify, only available on linux
+    if platform.system() == 'Linux':
+        from .modules.samba import CanarySamba
+        from .modules.portscan import CanaryPortscan
+        modules.append(CanarySamba)
+        modules.append(CanaryPortscan)
+
+    return modules
+
 
 logger = getLogger(config)
+
 
 def start_mod(application, klass):
     try:
@@ -107,6 +116,7 @@ def start_mod(application, klass):
         )
         logMsg({'logdata': err})
 
+
 def logMsg(msg):
     data = {}
 #    data['src_host'] = device_name
@@ -114,33 +124,49 @@ def logMsg(msg):
     data['logdata'] = {'msg': msg}
     logger.log(data, retry=False)
 
-application = service.Application("opencanaryd")
 
-# List of modules to start
-start_modules = []
-
-# Add all custom modules
-# (Permanently enabled as they don't officially use settings yet)
-for ep in iter_entry_points(ENTRYPOINT):
-    try:
-        klass = ep.load(require=False)
-        start_modules.append(klass)
-    except Exception as e:
-        err = 'Failed to load class from the entrypoint: %s. %s' % (
-            str(ep),
-            traceback.format_exc()
-            )
-        logMsg({'logdata': err})
-
-# Add only enabled modules
-start_modules.extend(filter(lambda m: config.moduleEnabled(m.NAME), MODULES))
-
-for klass in start_modules:
-    start_mod(application, klass)
-
-logMsg("Canary running!!!")
+def load_external_modules():
+    # Add all custom modules
+    # (Permanently enabled as they don't officially use settings yet)
+    for ep in iter_entry_points(ENTRYPOINT):
+        try:
+            klass = ep.load(require=False)
+            yield klass
+        except Exception as e:
+            err = 'Failed to load class from the entrypoint: %s. %s' % (
+                str(ep),
+                traceback.format_exc()
+                )
+            logMsg({'logdata': err})
 
 
-def run_twisted_app(app):
+def extract_enabled_modules(external_modules, stdlib_modules, config):
+    # Add only enabled modules
+    return (
+        m for m in itertools.chain(external_modules, stdlib_modules)
+        if config.moduleEnabled(m.NAME)
+    )
+
+
+def setup_modules(app, mods):
+    for klass in mods:
+        start_mod(app, klass)
+
+
+def initialize_app(name, config):
+    app = service.Application(name)
+
+    std_modules = get_stdlib_modules()
+    ext_modules = load_external_modules()
+    enabled_modules = extract_enabled_modules(ext_modules, std_modules, config)
+    setup_modules(app, enabled_modules)
+
+    return app
+
+
+def run_twisted_app():
+    app = initialize_app('opencanaryd', config)
     startApplication(app, 0)
+
+    logMsg('Canary running!!!')
     reactor.run()
