@@ -1,26 +1,31 @@
+from __future__ import absolute_import, print_function, unicode_literals
+__metaclass__ = type
+
+from pkg_resources import iter_entry_points
 import traceback
 
 from twisted.application import service
 from twisted.application import internet
+from twisted.application.app import startApplication
+from twisted.internet import reactor
 from twisted.internet.protocol import Factory
-from pkg_resources import iter_entry_points
 
-from opencanary.config import config
-from opencanary.logger import getLogger
-from opencanary.modules.http import CanaryHTTP
-from opencanary.modules.ftp import CanaryFTP
-from opencanary.modules.ssh import CanarySSH
-from opencanary.modules.telnet import Telnet
-from opencanary.modules.httpproxy import HTTPProxy
-from opencanary.modules.mysql import CanaryMySQL
-from opencanary.modules.mssql import MSSQL
-from opencanary.modules.ntp import CanaryNtp
-from opencanary.modules.tftp import CanaryTftp
-from opencanary.modules.vnc import CanaryVNC
-from opencanary.modules.sip import CanarySIP
+from .config import config
+from .logger import getLogger
+from .modules.http import CanaryHTTP
+from .modules.ftp import CanaryFTP
+from .modules.ssh import CanarySSH
+from .modules.telnet import Telnet
+from .modules.httpproxy import HTTPProxy
+from .modules.mysql import CanaryMySQL
+from .modules.mssql import MSSQL
+from .modules.ntp import CanaryNtp
+from .modules.tftp import CanaryTftp
+from .modules.vnc import CanaryVNC
+from .modules.sip import CanarySIP
 
-#from opencanary.modules.example0 import CanaryExample0
-#from opencanary.modules.example1 import CanaryExample1
+#from .modules.example0 import CanaryExample0
+#from .modules.example1 import CanaryExample1
 
 ENTRYPOINT = "canary.usermodule"
 MODULES = [Telnet, CanaryHTTP, CanaryFTP, CanarySSH, HTTPProxy, CanaryMySQL,
@@ -137,7 +142,5 @@ logMsg("Canary running!!!")
 
 
 def run_twisted_app(app):
-    from twisted.application.app import startApplication
-    from twisted.internet import reactor
     startApplication(app, 0)
     reactor.run()
