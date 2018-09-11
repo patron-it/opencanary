@@ -1,3 +1,4 @@
+import filecmp
 import os
 from pkg_resources import resource_filename
 import shutil
@@ -11,11 +12,6 @@ USER_CONFIG_PATH = os.path.join(os.path.expanduser("~"), "." + config_name)
 PWD_CONFIG_PATH = config_name
 SYS_CONFIG_PATH = os.path.join('/etc/opencanaryd', config_name)
 PIDFILE_PATH = "opencanaryd.pid"
-
-
-run_user_module = (
-    lambda ctx: print({'ctx': ctx})
-)
 
 
 def config_file_exists(conf_path):
@@ -57,6 +53,26 @@ def stop_app(ctx):
 def run_dev_app(ctx):
     config_present_or_die(ctx)
 
+    from .app import run_twisted_app
+    run_twisted_app()
+    #sudo "${DIR}/twistd" -noy "${DIR}/opencanary.tac"
+
+
+def run_user_module(ctx):
+    user_mod_conf = resource_filename('opencanary', 'data/settings-usermodule.json')
+
+    files_equal = False
+    try:
+        files_equal = filecmp(default_conf, PWD_CONFIG_PATH, shallow=False)
+    except OSError:
+        pass
+    if files_equal:
+        click.echo('Backing up old config to ./%s.old' % PWD_CONFIG_PATH)
+        shutil.copy(PWD_CONFIG_PATH, PWD_CONFIG_PATH + '.old')
+
+    shutil.copy(default_conf, PWD_CONFIG_PATH)
+
+    ctx.fail('I am supposed to run with user modules enabled, but do not yet know how.')
     from .app import run_twisted_app
     run_twisted_app()
     #sudo "${DIR}/twistd" -noy "${DIR}/opencanary.tac"
