@@ -10,6 +10,7 @@ config_name = 'opencanary.conf'
 USER_CONFIG_PATH = os.path.join(os.path.expanduser("~"), "." + config_name)
 PWD_CONFIG_PATH = config_name
 SYS_CONFIG_PATH = os.path.join('/etc/opencanaryd', config_name)
+PIDFILE_PATH = "opencanaryd.pid"
 
 
 run_user_module = (
