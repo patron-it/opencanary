@@ -55,7 +55,7 @@ setup(
     packages=find_packages(exclude='test'),
     entry_points={
         'console_scripts': [
-            'opencanaryd-ng = opencanary.cli:main',
+            'opencanaryd = opencanary.cli:main',
         ],
     },
     platforms='any',
