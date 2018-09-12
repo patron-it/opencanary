@@ -5,9 +5,8 @@ import shutil
 import textwrap
 
 import click
-from daemonocle import Daemon
 
-from .app import run_twisted_app
+from .app import run_twisted_app, get_app_daemon
 
 
 ENV_VAR_PREFIX = 'OPENCANARY_'
@@ -35,20 +34,15 @@ def config_present_or_die(ctx):
         ctx.exit(1)
 
 
-def get_daemon():
-    # FIXME: figure out the log prefix (opencanaryd)
-    return Daemon(worker=run_twisted_app, pidfile=PIDFILE_PATH)
-
-
 def start_app(ctx):
     config_present_or_die(ctx)
 
-    daemon = get_daemon()
+    daemon = get_app_daemon(PIDFILE_PATH)
     daemon.do_action('start')
 
 
 def stop_app(ctx):
-    daemon = get_daemon()
+    daemon = get_app_daemon(PIDFILE_PATH)
     daemon.do_action('stop')
 
 

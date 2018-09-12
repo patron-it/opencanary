@@ -12,6 +12,8 @@ from twisted.application.app import startApplication
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory
 
+from daemonocle import Daemon
+
 from .config import config
 from .logger import getLogger
 from .modules.http import CanaryHTTP
@@ -170,3 +172,8 @@ def run_twisted_app():
 
     logMsg('Canary running!!!')
     reactor.run()
+
+
+def get_app_daemon(pid_file):
+    # FIXME: figure out the log prefix (opencanaryd)
+    return Daemon(worker=run_twisted_app, pidfile=pid_file)
