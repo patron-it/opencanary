@@ -57,14 +57,14 @@ def run_user_module(ctx):
 
     files_equal = False
     try:
-        files_equal = filecmp(default_conf, PWD_CONFIG_PATH, shallow=False)
+        files_equal = filecmp.cmp(user_mod_conf, PWD_CONFIG_PATH, shallow=False)
     except OSError:
         pass
     if files_equal:
         click.echo('Backing up old config to ./%s.old' % PWD_CONFIG_PATH)
         shutil.copy(PWD_CONFIG_PATH, PWD_CONFIG_PATH + '.old')
 
-    shutil.copy(default_conf, PWD_CONFIG_PATH)
+    shutil.copy(user_mod_conf, PWD_CONFIG_PATH)
 
     run_twisted_app()
 
