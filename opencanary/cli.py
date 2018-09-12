@@ -19,7 +19,7 @@ def config_file_exists(conf_path):
 
 
 def config_present_or_die(ctx):
-    if not any(map(config_exists, (
+    if not any(map(config_file_exists, (
         USER_CONFIG_PATH,
         PWD_CONFIG_PATH,
         SYS_CONFIG_PATH,
