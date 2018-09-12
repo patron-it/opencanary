@@ -55,7 +55,6 @@ def run_dev_app(ctx):
 
     from .app import run_twisted_app
     run_twisted_app()
-    #sudo "${DIR}/twistd" -noy "${DIR}/opencanary.tac"
 
 
 def run_user_module(ctx):
@@ -72,10 +71,8 @@ def run_user_module(ctx):
 
     shutil.copy(default_conf, PWD_CONFIG_PATH)
 
-    ctx.fail('I am supposed to run with user modules enabled, but do not yet know how.')
     from .app import run_twisted_app
     run_twisted_app()
-    #sudo "${DIR}/twistd" -noy "${DIR}/opencanary.tac"
 
 
 def copy_config(ctx):
