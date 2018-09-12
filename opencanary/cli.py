@@ -118,9 +118,8 @@ def copy_config(ctx):
     flag_value=run_user_module,
 )
 @click.pass_context
-def cli(ctx, action, **kwargs):
+def cli(ctx, action):
     action(ctx)
-    ctx.obj.update(**kwargs)
 
 
 def main():
