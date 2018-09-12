@@ -18,6 +18,7 @@ requirements = [
     'python-dateutil',
     'click==6.7',
     'six',
+    'daemonocle',
 ]
 
 

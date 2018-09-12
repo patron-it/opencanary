@@ -5,6 +5,7 @@ import shutil
 import textwrap
 
 import click
+from daemonocle import Daemon
 
 ENV_VAR_PREFIX = 'OPENCANARY_'
 config_name = 'opencanary.conf'
@@ -31,23 +32,22 @@ def config_present_or_die(ctx):
         ctx.exit(1)
 
 
+def get_daemon():
+    # FIXME: figure out the log prefix (opencanaryd)
+    from .app import run_twisted_app
+    return Daemon(worker=run_twisted_app, pidfile=PIDFILE_PATH)
+
+
 def start_app(ctx):
     config_present_or_die(ctx)
 
-    # FIXME: Add app starting logic here
-    # TODO: Take into account PID files
-    # NOTE: Consider using https://pypi.org/p/daemonocle
-
-    from .app import run_twisted_app
-    run_twisted_app()
-    # Do not log to syslog to avoid flood
-    #sudo "${DIR}/twistd" -y "${DIR}/opencanary.tac" --pidfile "${PIDFILE}" --prefix=opencanaryd
+    daemon = get_daemon()
+    daemon.do_action('start')
 
 
 def stop_app(ctx):
-    ctx.fail('I am supposed to kill the daemon, but do not yet know how.')
-    #pid=`sudo cat "${PIDFILE}"`
-    #sudo kill "$pid"
+    daemon = get_daemon()
+    daemon.do_action('stop')
 
 
 def run_dev_app(ctx):
