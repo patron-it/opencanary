@@ -16,6 +16,9 @@ requirements = [
     'Jinja2==2.10.0',
     'ntlmlib==0.72',
     'python-dateutil',
+    'click==6.7',
+    'six',
+    'daemonocle',
 ]
 
 
@@ -51,7 +54,11 @@ setup(
     ],
     license='BSD',
     packages=find_packages(exclude='test'),
-    scripts=['bin/opencanaryd', 'bin/opencanary.tac'],
+    entry_points={
+        'console_scripts': [
+            'opencanaryd = opencanary.cli:main',
+        ],
+    },
     platforms='any',
     include_package_data=True
 )
