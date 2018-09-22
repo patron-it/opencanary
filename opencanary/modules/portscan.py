@@ -54,7 +54,7 @@ class CanaryPortscan(CanaryService):
             'synrate': self.synrate,
         }
 
-        iptables_cmd_tmpl = (
+        iptables_cmd_tmpl = (  # FIXME: get rid of `sudo`
             'sudo /sbin/iptables -t mangle -{{action_flag}} PREROUTING '
             '-p tcp {dst} --syn '
             '-j LOG --log-level=warning --log-prefix="canaryfw: " '
