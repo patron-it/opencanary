@@ -42,6 +42,7 @@ class CanaryPortscan(CanaryService):
         self.audit_file = config.getVal('portscan.logfile', default='/var/log/kern.log')
         self.synrate = int(config.getVal('portscan.synrate', default=5))
         self.listen_addr = config.getVal('device.listen_addr', default='')
+        self.listen_interface = config.getVal('device.listen_interface', default='')
         self.config = config
 
     def startYourEngines(self, reactor=None):
@@ -51,12 +52,17 @@ class CanaryPortscan(CanaryService):
                 if len(self.listen_addr)
                 else ''
             ),
+            'interface': (
+                ('-i ' + self.listen_interface)
+                if len(self.listen_interface)
+                else ''
+            ),
             'synrate': self.synrate,
         }
 
         iptables_cmd_tmpl = (  # FIXME: get rid of `sudo`
             'sudo /sbin/iptables -t mangle -{{action_flag}} PREROUTING '
-            '-p tcp {dst} --syn '
+            '-p tcp {dst} {interface} --syn '
             '-j LOG --log-level=warning --log-prefix="canaryfw: " '
             '-m limit --limit="{synrate}/second"'
         )
