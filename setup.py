@@ -2,7 +2,6 @@ from setuptools import setup, find_packages
 
 import sys
 import os
-import opencanary
 
 requirements = [
     'Twisted==18.7.0',
@@ -41,7 +40,7 @@ extras = {
 
 setup(
     name='patron-it-opencanary',
-    version=opencanary.__version__,
+    use_scm_version=True,
     url='http://www.thinkst.com/',
     author='Thinkst Applied Research',
     author_email='info@thinkst.com',
@@ -50,7 +49,7 @@ setup(
     install_requires=requirements,
     extras_require=extras,
     setup_requires=[
-        'setuptools_git'
+        'setuptools_scm'
     ],
     license='BSD',
     packages=find_packages(exclude='test'),
