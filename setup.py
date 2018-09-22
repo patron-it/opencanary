@@ -40,7 +40,7 @@ extras = {
 
 
 setup(
-    name='opencanary',
+    name='patron-it-opencanary',
     version=opencanary.__version__,
     url='http://www.thinkst.com/',
     author='Thinkst Applied Research',
