@@ -45,28 +45,26 @@ class CanaryPortscan(CanaryService):
         self.config = config
 
     def startYourEngines(self, reactor=None):
-        os.system(
-            'sudo /sbin/iptables -t mangle -D PREROUTING -p tcp {dst} --syn -j LOG --log-level=warning --log-prefix="canaryfw: " -m limit --limit="{synrate}/second"'.
-            format(
-                dst=(
-                    ('--destination ' + self.listen_addr)
-                    if len(self.listen_addr)
-                    else ''
-                ),
-                synrate=self.synrate,
-            )
+        iptables_args = {
+            'dst': (
+                ('--destination ' + self.listen_addr)
+                if len(self.listen_addr)
+                else ''
+            ),
+            'synrate': self.synrate,
+        }
+
+        iptables_cmd_tmpl = (
+            'sudo /sbin/iptables -t mangle -{{action_flag}} PREROUTING '
+            '-p tcp {dst} --syn '
+            '-j LOG --log-level=warning --log-prefix="canaryfw: " '
+            '-m limit --limit="{synrate}/second"'
         )
-        os.system(
-            'sudo /sbin/iptables -t mangle -A PREROUTING -p tcp {dst} --syn -j LOG --log-level=warning --log-prefix="canaryfw: " -m limit --limit="{synrate}/second"'.
-            format(
-                dst=(
-                    ('--destination ' + self.listen_addr)
-                    if len(self.listen_addr)
-                    else ''
-                ),
-                synrate=self.synrate,
-            )
-        )
+        iptables_pre_cmd_tmpl = iptables_cmd_tmpl.format(**iptables_args)
+
+        os.system(iptables_pre_cmd_tmpl.format(action_flag='D'))
+        os.system(iptables_pre_cmd_tmpl.format(action_flag='A'))
+
         fs = SynLogWatcher(logFile=self.audit_file, logger=self.logger)
         fs.start()
 
