@@ -11,7 +11,10 @@ import re
 
 from datetime import datetime
 from logging.handlers import SocketHandler
+
 from twisted.internet import reactor
+from twisted.internet.defer import inlineCallbacks
+import treq
 
 import six
 
@@ -314,3 +317,15 @@ class DShieldHandler(logging.Handler):
             print('\nERROR: error {0} .\n'.format(req.status_code))
             print('Response was {0}'.format(response))
             return(1,'\nERROR: error {0} .\n'.format(req.status_code))
+
+
+class HTTPAlertHandler(logging.Handler):
+    def __init__(self, server_url):
+        self._log_server_url = server_url
+
+    @inlineCallbacks
+    def _send_record_over_http(self, record):
+        yield treq.post(self._log_server_url, data=record.message)
+
+    def emit(self, record):
+        reactor.callLater(0, self._send_record_over_http, record)
