@@ -22,7 +22,7 @@ Installation on Ubuntu:
 $ sudo apt-get install python-dev python-pip python-virtualenv
 $ virtualenv env/
 $ . env/bin/activate
-$ pip install opencanary[rdp,snmp]  # rdp and snmp are optional extras
+$ pip install opencanary[rdp,snmp,remote-logging]  # rdp, snmp and remote-logging are optional extras
 ```
 
 Ubuntu users installing rdpy should run the following before installing OpenCanary:

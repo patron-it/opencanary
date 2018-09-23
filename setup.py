@@ -32,6 +32,7 @@ extras = {
     'DShield': [
         'requests'
     ],
+    'remote-logging': ['treq'],
     ':python_version < "3"': [
         'wsgiref==0.1.2',
     ],
