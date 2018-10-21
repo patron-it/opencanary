@@ -55,10 +55,10 @@ def getLogger(config):
 
     try:
         logger = LoggerClass(config, **kwargs)
-    except Exception as e:
+    except ValueError as e:
         print("An error occured initialising the logger class", file=sys.stderr)
         print(e)
-        exit(1)
+        raise
 
     return logger
 
