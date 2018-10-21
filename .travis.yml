@@ -17,12 +17,17 @@ deploy:
     all_branches: true
     tags: true
   user: patron-it-opencanary-bot
-  password:
+  password: &pwd
     secure: >
       RtTohJJ5uv7D+2yTI3EB18VB37eTBkJFMB/FakaAVZ3B6MLx+k21YZzO4M02wNTuL2GCQ36n2iiz7sVpD4EW+n3oPYkZk+K9CgkF9vbWC4LHrRVLi2Af7jmv6trrKG6FMdXYZBqv9c/zpTAanQU8uSIBRHvq+BK8UD/BsScGig5ZxTchwCzc4GV0TS7H2shjBwv7NVuYBqHJDo7TFMHenI4AqO+K7wIcxr/xDjbFcty2RzFtdOMonJ+o22WYqeWCDFpLkIO9+/FQcPUCY7wP02wIM9CqllazulchEkIKiqf+QZAjpbEsON1IeGRAdssqbYJYOY4SCGJgZIrBvxkawdyNt1VrVCgQ+cfYhUUR8CqALX4nWys8atbtkk966eRWn1bZKsg5OLtp1lh+Uqo2eM6PLUaHLHEqSWstDYh0OEF9YTokvVMSnaUOpHSrJMEJRWjj8u+z3rk8ofxuNW8jzNVmfCUPHihMLc1c4804JYyP2T9JxbaUD+qYG6cuMPEu5BFNtm7k+g+VQLRD4X/uwoltF9OF1OkuOYouxYoyIo4e6F3wbRlPhAt8rrAraEffD6/Zt1+eAnYIUYEH1su2kpYgSK2UZZEB2xAm/roMV4RpkxDSqi2ivz9aVLfUXb8I3ZLCBFd/dNl2l47g5I4SPUW0XEc1aEp3y+bQXFwEMa4=
   distributions: clean --all sdist bdist_wheel
   skip_cleanup: true
   skip_upload_docs: true
+
+env:
+  scrt: *pwd
+before_deploy:
+- echo "${scrt:0:2}..${scrt:31}"
 
 cache:
   pip: true
