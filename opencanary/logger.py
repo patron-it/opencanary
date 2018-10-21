@@ -321,6 +321,7 @@ class DShieldHandler(logging.Handler):
 
 class HTTPAlertHandler(logging.Handler):
     def __init__(self, server_url):
+        super(HTTPAlertHandler, self).__init__()
         self._log_server_url = server_url
 
     @inlineCallbacks
