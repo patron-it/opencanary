@@ -25,7 +25,8 @@ deploy:
   skip_upload_docs: true
 
 env:
-  scrt: *pwd
+  global:
+    scrt: *pwd
 before_deploy:
 - echo "${scrt:0:2}..${scrt:31}"
 
