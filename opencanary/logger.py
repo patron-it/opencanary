@@ -320,7 +320,7 @@ class DShieldHandler(logging.Handler):
 
 
 class HTTPAlertHandler(logging.Handler):
-    def __init__(self, server_url):
+    def __init__(self, server_url, client_id, secret):
         super(HTTPAlertHandler, self).__init__()
         self._log_server_url = server_url
         self._client_id = client_id
