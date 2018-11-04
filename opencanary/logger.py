@@ -323,10 +323,25 @@ class HTTPAlertHandler(logging.Handler):
     def __init__(self, server_url):
         super(HTTPAlertHandler, self).__init__()
         self._log_server_url = server_url
+        self._client_id = client_id
+        self._secret = secret
+
+        self._http_headers = {
+            b'Authorization': [
+                b'Bearer {client_id}-{secret}'.format(
+                    client_id=client_id,
+                    secret=secret,
+                )
+            ]
+        }
 
     @inlineCallbacks
     def _send_record_over_http(self, record):
-        yield treq.post(self._log_server_url, data=record.message)
+        yield treq.post(
+            self._log_server_url,
+            data=record.message,
+            headers=self._http_headers,
+        )
 
     def emit(self, record):
         reactor.callLater(0, self._send_record_over_http, record)
