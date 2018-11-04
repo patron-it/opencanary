@@ -328,10 +328,10 @@ class HTTPAlertHandler(logging.Handler):
 
         self._http_headers = {
             b'Authorization': [
-                b'Bearer {client_id}-{secret}'.format(
-                    client_id=bytes(client_id),
-                    secret=bytes(secret),
-                )
+                'Bearer {client_id}-{secret}'.format(
+                    client_id=str(client_id),
+                    secret=str(secret),
+                ).encode()
             ]
         }
 
