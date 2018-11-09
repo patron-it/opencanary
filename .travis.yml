@@ -1,5 +1,4 @@
 conditions: v1
-group: legacy
 
 dist: trusty
 sudo: false
