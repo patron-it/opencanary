@@ -52,6 +52,11 @@ def run_dev_app(ctx):
     run_twisted_app()
 
 
+def print_help_and_exit(ctx):
+    click.echo(ctx.get_help(), color=ctx.color)
+    ctx.exit()
+
+
 def run_user_module(ctx):
     user_mod_conf = resource_filename('opencanary', 'data/settings-usermodule.json')
 
@@ -119,6 +124,8 @@ def copy_config(ctx):
 )
 @click.pass_context
 def cli(ctx, action):
+    if action is None:
+        action = print_help_and_exit
     action(ctx)
 
 
