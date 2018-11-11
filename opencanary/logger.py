@@ -7,6 +7,7 @@ import sys
 import base64
 import time
 import dateutil.parser
+import random
 import re
 
 from datetime import datetime
@@ -14,6 +15,7 @@ from logging.handlers import SocketHandler
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
+from twisted.internet.task import deferLater
 import treq
 
 import six
@@ -337,11 +339,27 @@ class HTTPAlertHandler(logging.Handler):
 
     @inlineCallbacks
     def _send_record_over_http(self, record):
-        yield treq.post(
-            self._log_server_url,
-            data=record.message,
-            headers=self._http_headers,
-        )
+        failures_counter = 0
+        base_num = 2
+        cap_sleep = 300
+        while True:
+            try:
+                yield treq.post(
+                    self._log_server_url,
+                    data=record.message,
+                    headers=self._http_headers,
+                )
+                return
+            except twisted.web.error.Error:
+                failures_counter += 1
+                timeout = random.triangular(
+                    0,
+                    min(
+                        cap_sleep,
+                        base_num ** failures_counter + random.random(),
+                    )
+                )
+                yield deferLater(reactor, timeout, lambda: None)  # sleep
 
     def emit(self, record):
         reactor.callLater(0, self._send_record_over_http, record)
