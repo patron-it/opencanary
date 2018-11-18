@@ -13,6 +13,7 @@ import re
 from datetime import datetime
 from logging.handlers import SocketHandler
 
+import twisted
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from twisted.internet.task import deferLater
