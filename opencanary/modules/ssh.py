@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from opencanary.modules import CanaryService
 
 import twisted
@@ -6,6 +8,8 @@ from twisted.conch import error, avatar, interfaces as conchinterfaces
 from twisted.conch.checkers import SSHPublicKeyDatabase
 from twisted.conch.ssh import factory, userauth, connection, keys, session, transport
 from twisted.internet import reactor, protocol, defer
+from twisted.internet.defer import inlineCallbacks
+from twisted.internet.task import deferLater
 from twisted. application import internet
 
 from zope.interface import implementer
@@ -107,8 +111,29 @@ class HoneyPotSSHUserAuthServer(userauth.SSHUserAuthServer):
                                                         self._ebPassword)
 
     def ssh_USERAUTH_REQUEST(self, packet):
-        self.sendBanner()
-        return userauth.SSHUserAuthServer.ssh_USERAUTH_REQUEST(self, packet)
+        @inlineCallbacks
+        def deferred_auth(auth_server_instance):
+            attempt_time = datetime.now()
+            auth_server_instance.sendBanner()
+
+            peer = auth_server_instance.transport.getPeer()
+            attempt_key = peer.address.host, auth_server_instance.user
+
+            previous_attempt_time = auth_server_instance.transport.factory.auth_attempts.get(attempt_key)
+            auth_server_instance.transport.factory.auth_attempts[attempt_key] = attempt_time
+
+            if (
+                previous_attempt_time and
+                attempt_time - previous_attempt_time < timedelta(seconds=3)
+            ):
+                yield deferLater(reactor, 30, lambda: None)  # sleep
+
+            res = yield userauth.SSHUserAuthServer.ssh_USERAUTH_REQUEST(
+                auth_server_instance, packet,
+            )
+            return res
+
+        return deferred_auth(self)
 
 # As implemented by Kojoney
 class HoneyPotSSHFactory(factory.SSHFactory):
@@ -131,6 +156,7 @@ class HoneyPotSSHFactory(factory.SSHFactory):
         self.sessions = {}
         self.logger = logger
         self.version = version
+        self.auth_attempts = {}
 
     def buildProtocol(self, addr):
         # FIXME: try to mimic something real 100%
