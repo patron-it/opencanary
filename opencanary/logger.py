@@ -340,12 +340,13 @@ class HTTPAlertHandler(logging.Handler):
 
     @inlineCallbacks
     def _send_record_over_http(self, record):
-        if isinstance(record, six.text_types):
+        record_msg = record.message
+        if isinstance(record_msg, six.text_type):
             """Turn unicode string into bytes.
 
             Ref: https://github.com/twisted/treq/issues/151
             """
-            record = record.encode()
+            record_msg = record_msg.encode()
         failures_counter = 0
         base_num = 2
         cap_sleep = 300
@@ -353,7 +354,7 @@ class HTTPAlertHandler(logging.Handler):
             try:
                 yield treq.post(
                     self._log_server_url,
-                    data=record.message,
+                    data=record_msg,
                     headers=self._http_headers,
                 )
                 return
