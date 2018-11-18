@@ -358,7 +358,11 @@ class HTTPAlertHandler(logging.Handler):
                     headers=self._http_headers,
                 )
                 return
-            except twisted.web.error.Error:
+            except (
+                twisted.web.error.Error,
+                twisted.internet.error.ConnectError,
+                IOError,
+            ):
                 failures_counter += 1
                 timeout = random.triangular(
                     0,
