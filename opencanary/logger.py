@@ -340,6 +340,12 @@ class HTTPAlertHandler(logging.Handler):
 
     @inlineCallbacks
     def _send_record_over_http(self, record):
+        if isinstance(record, six.text_types):
+            """Turn unicode string into bytes.
+
+            Ref: https://github.com/twisted/treq/issues/151
+            """
+            record = record.encode()
         failures_counter = 0
         base_num = 2
         cap_sleep = 300
