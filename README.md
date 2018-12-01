@@ -1,5 +1,4 @@
 [![Linux build @ Travis CI](https://img.shields.io/travis/com/patron-it/opencanary/master.svg?label=Linux%20build%20%40%20Travis%20CI)](https://travis-ci.com/patron-it/opencanary)
-
 [![Docs @ RTD](https://readthedocs.org/projects/patron-it-opencanary/badge/?version=latest)](https://patron-it-opencanary.readthedocs.io/en/latest/?badge=latest)
 
 OpenCanary
