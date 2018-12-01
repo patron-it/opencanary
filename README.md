@@ -10,7 +10,7 @@ Thinkst Applied Research
 Overview
 ----------
 
-OpenCanary is a daemon that runs several canary versions of services that alerts when a service is (ab)used.
+OpenCanary is a daemon that runs several canary versions of services that alerts when a service is (ab)used. It's a low interaction honeypot intended to be run on internal networks.
 
 Prerequisites
 ----------------
