@@ -1,4 +1,4 @@
-[![Release @ PyPI](https://img.shields.io/pypi/pyversions/patron-it-opencanary.svg)](https://pypi.org/project/patron-it-opencanary)
+[![Release @ PyPI](https://img.shields.io/pypi/v/patron-it-opencanary.svg)](https://pypi.org/project/patron-it-opencanary)
 [![Linux build @ Travis CI](https://img.shields.io/travis/com/patron-it/opencanary/master.svg?label=Linux%20build%20%40%20Travis%20CI)](https://travis-ci.com/patron-it/opencanary)
 [![Docs @ RTD](https://readthedocs.org/projects/patron-it-opencanary/badge/?version=latest)](https://patron-it-opencanary.readthedocs.io/en/latest/?badge=latest)
 [![BSD License](https://img.shields.io/badge/license-BSD-blue.svg)](https://pypi.org/project/patron-it-opencanary)
